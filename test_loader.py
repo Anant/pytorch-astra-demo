@@ -2,9 +2,10 @@ import torchvision.transforms as transforms
 from cassandra.auth import PlainTextAuthProvider
 from torch.utils.data import Dataset, DataLoader
 from astra_dataset import AstraDatasetTrain, AstraDatasetTest
+import auth
 
-cloud_config = {'secure_connect_bundle': '<secure-connect_bundle>'}
-auth_provider = PlainTextAuthProvider('<id>', '<token>')
+cloud_config = {'secure_connect_bundle': auth.scb_path}
+auth_provider = PlainTextAuthProvider(auth.auth_id, auth.auth_token)
 
 a = AstraDatasetTrain(
                     cloud_config, 

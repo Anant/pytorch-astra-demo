@@ -2,20 +2,21 @@ import torchvision.transforms as transforms
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
 from torch.utils.data import Dataset, DataLoader
-from astra_dataset import AstraDatasetTrain, AstraDatasetTest
+from astra_dataset import AstraDataset
 import torch
 import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import pickle as pkl
+import auth
 
-cloud_config = {'secure_connect_bundle': '<secure-connect_bundle>'}
-auth_provider = PlainTextAuthProvider('<id>', '<token>')
+cloud_config = {'secure_connect_bundle': auth.scb_path}
+auth_provider = PlainTextAuthProvider(auth.auth_id, auth.auth_token)
 cluster = Cluster(cloud=cloud_config, auth_provider=auth_provider)
 session = cluster.connect()
 
-train_dataset = AstraDatasetTrain(   
+train_dataset = AstraDataset(   
                     cloud_config, 
                     auth_provider, 
                     "mnist_digits", 
@@ -27,11 +28,11 @@ train_dataset = AstraDatasetTrain(
                              )
 train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
 
-test_dataset = AstraDatasetTest(
+test_dataset = AstraDataset(
                     cloud_config, 
                     auth_provider, 
                     "mnist_digits", 
-                    "raw_train", 
+                    "raw_test", 
                     100, 
                     transforms.Compose([
                                transforms.ToTensor(),
@@ -99,7 +100,6 @@ def train(epoch):
                 (batch_idx*64) + ((epoch-1)*len(train_loader.dataset)))
             network_state = bytearray(pkl.dumps(network.state_dict()))
             optimizer_state = bytearray(pkl.dumps(optimizer.state_dict()))
-            print(type(network_state))
             #torch.save(network.state_dict(), 'results/model.pth')
             #torch.save(optimizer.state_dict(), 'results/optimizer.pth')
             query = "INSERT INTO mnist_digits.models (id, network, optimizer, upload_date, comments) VALUES (uuid(), %s, %s, toTimestamp(now()), %s);"
