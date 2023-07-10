@@ -8,7 +8,7 @@ You can either follow the directions below or [open this in gitpod](https://gitp
 # Setting up AstraDB
 1. Go to astra.datastax.com and sign up for a free account.
 2. Create a database using the add database button.
-3. Go to the CQL Console and create the required tables.
+3. Go to the CQL Console and create the required tables. Be sure to replace the <int> in the CREATE TABLE Commands with a number.
 ```
 CREATE TABLE mnist_digits.raw_train (id int PRIMARY KEY, label int, pixels list<int>);
 CREATE TABLE mnist_digits.raw_test (id int PRIMARY KEY, label int, pixels list<int>);
